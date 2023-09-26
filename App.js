@@ -1,8 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
-
+import axios from "axios";
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
+import ScanService from './services/ScanService';
 
 
 export default function App() {
@@ -10,7 +11,7 @@ export default function App() {
   const [scanned, setScanned] = useState(false);
   const [text, setText] = useState('Not yet scanned');
 
-  const askForCamerPermission = () => {
+  const askForCameraPermission = () => {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
       setHasPermission(status == 'granted')
@@ -20,7 +21,7 @@ export default function App() {
 
   //Request Camera Permission
   useEffect(() => {
-    askForCamerPermission();
+    askForCameraPermission();
   }, []);
 
 
@@ -29,6 +30,26 @@ export default function App() {
     setScanned(true);
     setText(data);
     console.log('Type: ' + type + '\nData ' + data)
+
+    const userid = 'spencerrobles19';
+    let scanRequest = {userid: userid, barid:data }
+    const scanUrl = "http://192.168.100.212:8080/scan/scanProduct";
+
+    const rawUrl = "http://192.168.100.212:8080/scan/scanProduct?barid="+data+"&userid=spencerrobles19"
+
+    // const rawUrl = "http://localhost:8080/scan/scanProduct?barid=523456789122&userid=spencerrobles19"
+
+    axios.post(rawUrl)
+    .then( res => { 
+      
+      alert(res.data);
+      console.log(res.data)}
+      
+      )
+    .catch(err=> {
+      alert("Something's Wrong");
+  });
+
   }
 
 
@@ -45,7 +66,7 @@ export default function App() {
     return (
       <View style={styles.container}>
         <Text style={{ margin: 10 }}>No access to camera</Text>
-        <Button title={'Allow Camera'} onPress={() => askForCamerPermission()} />
+        <Button title={'Allow Camera'} onPress={() => askForCameraPermission()} />
       </View>
     )
   }
